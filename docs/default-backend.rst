@@ -32,6 +32,28 @@ This backend makes use of the following settings:
     is optional, and a default of ``True`` will be assumed if it is
     not supplied.
 
+``INCLUDE_AUTH_URLS``
+    A boolean (either ``True`` or ``False``) indicating whether auth urls
+    (mapped to ``django.contrib.auth.views``) should be included in the
+    ``urlpatterns`` of the application backend.
+
+``INCLUDE_REGISTER_URL``
+    A boolean (either ``True`` or ``False``) indicating whether the view
+    for registering accounts should be included in the ``urlpatterns``
+    of the application backend.
+
+``REGISTRATION_FORM``
+    A string dotted path to the desired registration form.
+
+``ACTIVATION_EMAIL_SUBJECT``
+    A string slashed path to the desired template for the activation email subject.
+    
+``ACTIVATION_EMAIL_BODY``
+    A string slashed path to the desired template for the activation email body.
+    
+``ACTIVATION_EMAIL_HTML``
+    A string slashed path tot the desired template for the activation email html.
+
 By default, this backend uses
 :class:`registration.forms.RegistrationForm` as its form class for
 user registration; this can be overridden by passing the keyword
@@ -94,15 +116,14 @@ the database, using the following model:
    .. attribute:: activation_key
 
       A 40-character ``CharField``, storing the activation key for the
-      account. Initially, the activation key is the hexdigest of a
-      SHA1 hash; after activation, this is reset to :attr:`ACTIVATED`.
+      account. The activation key is the hexdigest of a SHA1 hash.
 
-   Additionally, one class attribute exists:
+   .. attribute:: activated
 
-   .. attribute:: ACTIVATED
-
-      A constant string used as the value of :attr:`activation_key`
-      for accounts which have been activated.
+      A ``BooleanField``, storing whether or not the the User has activated
+      their account. Storing this independent from ``self.user.is_active``
+      allows accounts to be deactivated and prevent being reactivated without
+      authorization.
 
    And the following methods:
 
@@ -112,7 +133,7 @@ the database, using the following model:
       and returns a boolean (``True`` if expired, ``False``
       otherwise). Uses the following algorithm:
 
-      1. If :attr:`activation_key` is :attr:`ACTIVATED`, the account
+      1. If :attr:`activated` is ``True``, the account
          has already been activated and so the key is considered to
          have expired.
 
@@ -187,23 +208,24 @@ Additionally, :class:`RegistrationProfile` has a custom manager
    This manager provides several convenience methods for creating and
    working with instances of :class:`RegistrationProfile`:
 
-   .. method:: activate_user(activation_key)
+   .. method:: activate_user(activation_key, site)
 
       Validates ``activation_key`` and, if valid, activates the
       associated account by setting its ``is_active`` field to
       ``True``. To prevent re-activation of accounts, the
-      :attr:`~RegistrationProfile.activation_key` of the
+      :attr:`~RegistrationProfile.activated` of the
       :class:`RegistrationProfile` for the account will be set to
-      :attr:`RegistrationProfile.ACTIVATED` after successful
-      activation.
+      ``True`` after successful activation.
 
-      Returns the ``User`` instance representing the account if
-      activation is successful, ``False`` otherwise.
+      Returns a tuple of (``User``, ``activated``) representing the account if
+      activation is successful and whether the ``User`` was activated or not.
 
       :param activation_key: The activation key to use for the
          activation.
       :type activation_key: string, a 40-character SHA1 hexdigest
-      :rtype: ``User`` or bool
+      :type site: ``django.contrib.sites.models.Site`` or
+        ``django.contrib.sites.models.RequestSite``
+      :rtype: (``User``, ``bool)
 
    .. method:: delete_expired_users
 
@@ -226,18 +248,16 @@ Additionally, :class:`RegistrationProfile` has a custom manager
 
       :rtype: ``None``
 
-   .. method:: create_inactive_user(username, email, password, site[, send_email, request])
+   .. method:: create_inactive_user(site, [new_user=None, send_email=True, request=None, **user_info])
 
       Creates a new, inactive user account and an associated instance
       of :class:`RegistrationProfile`, sends the activation email and
       returns the new ``User`` object representing the account.
 
-      :param username: The username to use for the new account.
-      :type username: string
-      :param email: The email address to use for the new account.
-      :type email: string
-      :param password: The password to use for the new account.
-      :type password: string
+      :param new_user: The user instance.
+      :type new_user: ``django.contrib.auth.models.AbstractBaseUser```
+      :param user_info: The fields to use for the new account.
+      :type user_info: dict
       :param site: An object representing the site on which the
          account is being registered.
       :type site: ``django.contrib.sites.models.Site`` or

@@ -1,107 +1,25 @@
 {% extends "registration/registration_base.html" %}
 {% load i18n %}
 
-
-{% block title %}{% trans "Register" %}{% endblock %}
-
-
+{% block title %}{% trans "Register for an account" %}{% endblock %}
 
 {% block content %}
-    <div class="container">
-    <h1>Register Free for {{ SITE_NAME }}</h1>
-    <form method="post" action=".">
-        {% csrf_token %}
-
-        <div class="row ">
-            <div class="col s12 m4 l8 z-depth-4 card-panel">
-
-                <div class="row">
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">email</i>
-                        <label for="id_email" data-error="Invalid email" ></label>
-                         <input type="text" name="email" title="" required id="id_email" maxlength="254"  placeholder="Email address" >
-                                <label for="id_email" data-error="Invalid email" ></label>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="input-field col s6">
-                        <i class="material-icons prefix">https</i>
-                       <input type="password" name="password1" title="" required id="id_password1" placeholder="Password" >
-                        <p class="error">   {{ form.password1.errors.as_text }}</p>
-                    </div>
-                    <div class="input-field col s6">
-                        <i class="material-icons prefix">https</i>
-                       <input type="password" name="password2" title="" required id="id_password2" placeholder="Password" >
-                    </div>
-
-                </div>
-
-                <div class="red-text">   {{ form.password2.errors.as_text }}</div>
-
-
-                <p> <a id="register" href="#" class="btn btn-block">{% trans "Signup" %}</a></p>
-                <p></p>
-                        <p> <a id="login" href="{% url "login" %}" class="btn">{% trans "Login" %}</a></p>
-                          <p></p>
-            </div>
-        </div>
-
-
-    </form>
-
-</div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
-
-    <script>
-
-        // trigger form submit on pressing return
-        $('input').keypress(function (e) {
-            if (e.which == 13) {
-                $('form#login').submit();
-                return false;
-            }
-        });
-
-
-
-        $("form").validate({
-            rules: {
-                email: {
-                    required: true,
-                    email: true
-                },
-                password1: {
-                    required: true,
-                    minlength: 5
-                },
-                password2: {
-                    required: true,
-                    minlength: 5,
-                    normalizer: function (value) {
-                        return $.trim(value);
-                    }
-                },
-
-                errorElement: 'div',
-                errorPlacement: function (error, element) {
-                    var placement = $(element).data('error');
-                    if (placement) {
-                        $(placement).append(error)
-                    } else {
-                        error.insertAfter(element);
-                    }
-                }
-            }
-        });
-
-
-        $(document).on("click", "#register", function(e) {
-            $("form").submit();
-        });
-
-
-    </script>
+<form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans 'Submit' %}" />
+</form>
 {% endblock %}
+
+
+{% comment %}
+**registration/registration_form.html**
+Used to show the form users will fill out to register. By default, has
+the following context:
+
+``form``
+    The registration form. This will be an instance of some subclass
+    of ``django.forms.Form``; consult `Django's forms documentation
+    <http://docs.djangoproject.com/en/dev/topics/forms/>`_ for
+    information on how to display this in a template.
+{% endcomment %}

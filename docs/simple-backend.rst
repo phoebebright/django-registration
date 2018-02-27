@@ -25,7 +25,7 @@ To use this backend, simply include the URLconf
 ``registration.backends.simple.urls`` somewhere in your site's own URL
 configuration. For example::
 
-    (r'^accounts/', include('registration.backends.simple.urls')),
+    url(r'^accounts/', include('registration.backends.simple.urls')),
 
 No additional settings are required, but one optional setting is
 supported:
@@ -35,12 +35,9 @@ supported:
     registration of new accounts is currently permitted. A default of
     ``True`` will be assumed if this setting is not supplied.
 
-Upon successful registration, the default redirect is to the URL
-specified by the ``get_absolute_url()`` method of the newly-created
-``User`` object; by default, this will be ``/users/<username>/``,
-although it can be overridden by implementing
-:meth:`~registration.views.RegistrationView.get_success_url()` on a
-subclass of ``registration.backends.simple.views.RegistrationView``.
+``SIMPLE_BACKEND_REDIRECT_URL``
+    Redirection url after successful registration.
+    Default value is ``/``
 
 The default form class used for account registration will be
 :class:`registration.forms.RegistrationForm`, although this can be

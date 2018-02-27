@@ -22,6 +22,7 @@ var/
 .installed.cfg
 *.egg
 include/
+.eggs/
 
 # Installer logs
 pip-log.txt
@@ -57,3 +58,6 @@ docs/_build/
 
 # Pycharm
 .idea
+
+# PIP
+pip-selfcheck.json

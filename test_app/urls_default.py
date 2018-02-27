@@ -1,7 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include
+from django.conf.urls import url
+from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 
-urlpatterns = patterns('',
+urlpatterns = [
 
     url(r'^$',
         TemplateView.as_view(template_name='index.html'),
@@ -15,6 +18,10 @@ urlpatterns = patterns('',
         name='profile'),
 
     url(r'^login/',
-        'django.contrib.auth.views.login',
-        name='login')
-)
+        auth_views.login,
+        name='login'),
+
+    url(r'^admin/',
+        admin.site.urls,
+        name='admin'),
+]
