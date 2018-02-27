@@ -4,42 +4,247 @@
 {% block title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
-<form method="post" action="">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="{% trans 'Log in' %}" />
-    <input type="hidden" name="next" value="{{ next }}" />
-</form>
 
-<p>{% trans "Forgot your password?" %} <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>.</p>
-<p>{% trans "Not a member?" %} <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>.</p>
+
+    <div class="container">
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="/" />
+
+            <div class="row ">
+                <div class="col s12 m4 l8 z-depth-4 card-panel">
+
+                    <h1>Login to {{ SITE_NAME }}</h1>
+                    <div id="login_form">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">email</i>
+                                <input type="email" name="username" title="" required id="id_username" maxlength="254" autofocus="" placeholder="Email address" >
+
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">https</i>
+                                <input type="password" name="password" title="" required id="id_password" placeholder="Password" >
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col s12">
+                                <label style='float: right;'>
+                                    <a href="{% url 'password_reset' %}"><b>Forgot Password?</b></a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="login-card" class="card red lighten-5" style="display:none;">
+                        <div class="card-content red-text">
+                            <div id="login_errors"></div>
+                        </div>
+                    </div>
+
+
+
+
+                    <p> <a id="login" href="#" class="btn btn-block">{% trans "Login" %}</a></p>
+
+
+
+
+                    <h1>Register for Free</h1>
+                    <div id="signup" style="display:none;">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">email</i>
+                                <input type="text" name="email" title="" required id="id_email" maxlength="254"  placeholder="Email address" >
+                                <label for="id_email" data-error="Invalid email" ></label>
+
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <i class="material-icons prefix">https</i>
+                                <input type="password" name="password1" title="" required id="id_password1" placeholder="Password" >
+
+                            </div>
+                            <div class="input-field col s6">
+                                <i class="material-icons prefix">https</i>
+                                <input type="password" name="password2" title="" required id="id_password2" placeholder="Password" >
+                            </div>
+                        </div>
+                    </div>
+                    <div id="register-card" class="card red lighten-5" style="display:none;">
+                        <div class="card-content red-text">
+                            <div id="register_errors"></div>
+                        </div>
+                    </div>
+
+                    <p> <a id="register" href="#" class="btn">{% trans "Signup" %}</a></p>
+                    <p></p>
+                </div>
+            </div>
+
+
+
+
+        </form>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+
+    <script>
+
+        login_mode();
+
+        // trigger form submit on pressing return
+        $('input').keypress(function (e) {
+            if (e.which == 13) {
+                login_or_register($("form"), "login");
+                return false;
+            }
+        });
+
+
+        $(document).on("click", "#register", function(e) {
+            document.location.href = "{% url "registration_register" %}";
+            {##}
+            {#if ($("#signup").is(":visible")) {#}
+            {##}
+            {#    // check passwords match#}
+            {##}
+            {#    login_or_register($("form"), "register");#}
+            {##}
+            {#} else {#}
+                {#    $("#id_reg_username").val($("#id_username").val());#}
+                {#    $("#login_card").slideUp();#}
+                {#    $("#signup").slideDown();#}
+                {#    $("#login_form").slideUp();#}
+                {##}
+                {#    register_mode();#}
+                {#}#}
+                });
+
+        $(document).on("click", "#login", function(e) {
+            if ($("#signup").is(":visible")) {
+                $("#register_card").slideUp();
+                $("#signup").slideUp();
+                $("#login_form").slideDown();
+
+                login_mode();
+
+
+            } else {
+
+
+                login_or_register($("form"), "login");
+
+
+            }
+        });
+
+        function login_mode() {
+
+            // setup validation for login
+
+            $("form").validate({
+                rules: {
+
+
+                    username: {
+                        required: true,
+                        email:true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 5
+                    },
+
+                },
+
+
+                errorElement : 'div',
+                errorPlacement: function(error, element) {
+                    var placement = $(element).data('error');
+                    if (placement) {
+                        $(placement).append(error)
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+        }
+
+        function register_mode() {
+            // setup validation for registration
+            $("form").validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password1: {
+                        required: true,
+                        minlength: 5
+                    },
+                    password2: {
+                        required: true,
+                        minlength: 5,
+                        normalizer: function (value) {
+                            return $.trim(value);
+                        }
+                    },
+
+                    errorElement: 'div',
+                    errorPlacement: function (error, element) {
+                        var placement = $(element).data('error');
+                        if (placement) {
+                            $(placement).append(error)
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    }
+                }
+            });
+
+
+        }
+
+        function login_or_register(form, mode) {
+
+            var data = form.serialize() + "&mode=" + mode;
+
+            var login_url = "{% url 'views.ajax_login' %}";
+
+
+            $.ajax({
+                url: '/login/',
+                type: 'post',
+                data:  data,
+                error: function(xhr, ajaxOptions, thrownError){
+                    alert(thrownError);
+                },
+                success: function(result){
+                    if (result['result'] == "OK") {
+                        document.location.href = $("[name=next]").val();
+                    } else {
+                        if (mode=="login") {
+                            $("#login_errors").html(result['message']["__all__"]);
+                            $("#login-card").slideDown();
+                        } else {
+                            $("#register_errors").html(result['message']["__all__"]);
+                            $("#register-card").slideDown();
+                        }
+                    }
+                }
+            });
+
+
+        }
+    </script>
 {% endblock %}
 
 
-{% comment %}
-**registration/login.html**
-
-It's your responsibility to provide the login form in a template called
-registration/login.html by default. This template gets passed four
-template context variables:
-
-``form``
-    A Form object representing the login form. See the forms
-    documentation for more on Form objects.
-
-``next``
-    The URL to redirect to after successful login. This may contain a
-    query string, too.
-
-``site``
-    The current Site, according to the SITE_ID setting. If you don't
-    have the site framework installed, this will be set to an instance
-    of RequestSite, which derives the site name and domain from the
-    current HttpRequest.
-
-``site_name``
-    An alias for site.name. If you don't have the site framework
-    installed, this will be set to the value of
-    request.META['SERVER_NAME']. For more on sites, see The
-    "sites" framework.
-{% endcomment %}

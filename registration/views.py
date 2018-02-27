@@ -9,7 +9,10 @@ from django.views.generic.edit import FormView
 
 from registration import signals
 from registration.forms import RegistrationForm
-
+from django.contrib.auth.forms import AuthenticationForm
+from django.http import JsonResponse
+from django.template.response import SimpleTemplateResponse
+from django.contrib.auth import login
 
 class _RequestPassingFormView(FormView):
     """
@@ -137,3 +140,23 @@ class ActivationView(TemplateView):
 
     def get_success_url(self, request, user):
         raise NotImplementedError
+
+
+def ajax_login(request):
+    form = AuthenticationForm()
+    if request.method == 'POST':
+        form = AuthenticationForm(None, request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return JsonResponse({'success': 'ok'})
+
+    return SimpleTemplateResponse(template='templates/ajax_login.html', context={'form': form})
+
+
+def ajax_registration(request):
+    form = RegistrationForm()
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            return JsonResponse({'success': 'ok', 'mail_activation': True})
+    return SimpleTemplateResponse(template='templates/ajax_registration.html', context={'form': form})
