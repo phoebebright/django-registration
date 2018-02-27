@@ -1,3 +1,6 @@
+This fork is implementing ajax login and registration
+
+
 .. -*-restructuredtext-*-
 
 .. image:: https://travis-ci.org/macropin/django-registration.png?branch=master
